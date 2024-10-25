@@ -1,7 +1,10 @@
 package com.stockchain.entity;
 
-import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,30 +12,29 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-
-
-
 @Data
-@Entity
-@Table(name = "users")
+@Getter
+@Setter
+@Document(collection = "user")
 public class User implements UserDetails {
 
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-    private String email;
+    private String _id;
+
     private String password;
     private String role;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role));
     }
 
-
     @Override
     public String getUsername() {
-        return email;
+        return _id;
     }
+
 
     @Override
     public boolean isAccountNonExpired() {
@@ -53,5 +55,6 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }
 

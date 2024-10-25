@@ -1,11 +1,12 @@
 package com.stockchain.repository;
 
 import com.stockchain.entity.User;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-public interface UserRepo extends JpaRepository<User, Integer> {
-    Optional<User> findByEmail(String email);
-    Optional<User> findById(Integer id);
+@Repository
+public interface UserRepo extends MongoRepository<User, Integer> {
+    Optional<User> findBy_id(String email);
 }

@@ -1,19 +1,27 @@
 package com.stockchain.entity;
 
-import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Generated;
+import lombok.Getter;
+import lombok.Setter;
+import org.bson.types.Binary;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@Entity
-@Table(name = "file")
+@Getter
+@Setter
+@Document(collection = "file")
 public class File {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Generated
     private Integer id;
-    private Integer idUser;
-    private Long size;
-    private String name;
+    private String filename;
+    private String userEmail;
+    private String fileType;
+    private String fileSize;
+    private byte[] file;
 
 
 }
