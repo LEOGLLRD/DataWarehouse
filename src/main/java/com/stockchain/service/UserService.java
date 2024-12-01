@@ -2,6 +2,7 @@ package com.stockchain.service;
 
 import com.google.gson.Gson;
 import com.mongodb.client.gridfs.model.GridFSFile;
+import com.stockchain.dto.requests.CreateFolderRequest;
 import com.stockchain.dto.requests.DepositFileRequest;
 import com.stockchain.dto.requests.GetFileRequest;
 import com.stockchain.dto.responses.GetFileResponse;
@@ -10,6 +11,7 @@ import com.stockchain.entity.Home;
 import com.stockchain.repository.HomeRepo;
 import com.stockchain.repository.UserRepo;
 import com.stockchain.dto.responses.Response;
+import com.stockchain.util.Folder;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +54,7 @@ public class UserService {
     private MongoTemplate mongoTemplate;
 
 
-    public Response addFile(DepositFileRequest fileRequest, HttpServletRequest request) throws IOException {
+    public Response addFile(DepositFileRequest fileRequest) throws IOException {
         Response response = new Response();
         try {
 
@@ -110,7 +112,7 @@ public class UserService {
 
     }
 
-    public GetFileResponse downloadFile(GetFileRequest fileRequest, HttpServletRequest request) throws IOException {
+    public GetFileResponse downloadFile(GetFileRequest fileRequest) throws IOException {
 
         GetFileResponse response = new GetFileResponse();
         try {
@@ -148,6 +150,49 @@ public class UserService {
                 return response;
 
             }
+        } catch (Exception e) {
+            response.setStatusCode(500);
+            response.setMessage(e.getMessage());
+            return response;
+        }
+
+
+    }
+
+    public Response createFolder(CreateFolderRequest createFolderRequest) {
+        //First checking the parameters are set
+        Response response = new Response();
+        try {
+
+            if (createFolderRequest.getFolderName() == null || createFolderRequest.getFolderName().isEmpty()
+                    || createFolderRequest.getPath() == null || createFolderRequest.getPath().isEmpty()
+                    || createFolderRequest.getIdUser() == null || createFolderRequest.getIdUser().isEmpty()) {
+                response.setStatusCode(400);
+                response.setMessage("One or several of the parameters are empty");
+                return response;
+            }
+
+            //Getting the home of the user
+            Optional<Home> h = homeRepo.findByUserId(createFolderRequest.getIdUser());
+            if (h.isEmpty()) {
+                response.setStatusCode(400);
+                response.setMessage("You have No Home");
+                return response;
+            }
+
+            //Creating the structure of the new home based on the old one
+            Gson gson = new Gson();
+            com.stockchain.util.Home home = com.stockchain.util.Home.jsonToHome(h.get().getHome());
+            home.getFolder().addFolderAt(new Folder(createFolderRequest.getFolderName()), createFolderRequest.getPath());
+            Home finalHome = new Home();
+            finalHome.setUserId(createFolderRequest.getIdUser());
+            finalHome.setHome(gson.toJson(home));
+            System.out.println(finalHome.getHome());
+            homeRepo.updateHome(createFolderRequest.getIdUser(), finalHome);
+            response.setMessage("File added successfully");
+            response.setStatusCode(200);
+            return response;
+
         } catch (Exception e) {
             response.setStatusCode(500);
             response.setMessage(e.getMessage());

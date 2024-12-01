@@ -75,7 +75,7 @@ public class Folder implements Source {
     //If no path given, the file is added in the current folder
     public boolean addFileAt(File file, String path) {
 
-        if (path == null || path.equals("")) {
+        if (path == null || path.isEmpty()) {
             return false;
         }
         String[] folders = path.split("/");
@@ -134,10 +134,13 @@ public class Folder implements Source {
     //      To remove the file "file1" at "/home/folder1"
     //      Path must be : "folder1"
     public boolean removeFileAt(String name, String path) {
-        String[] folders = path.split("/");
-        if (folders.length == 0) {
-            System.out.println("Path not valid");
+        if (path == null || path.isEmpty()) {
             return false;
+        }
+        String[] folders = path.split("/");
+        if (folders.length == 1) {
+            this.removeFile(name);
+            return true;
         }
 
         //Setting the first folder to go through which is this at beginning
@@ -276,10 +279,12 @@ public class Folder implements Source {
     }
 
     public Folder getFolderAt(String name, String path) {
-        String[] folders = path.split("/");
-        if (folders.length == 0) {
-            System.out.println("Path not valid");
+        if (path == null || path.isEmpty()) {
             return null;
+        }
+        String[] folders = path.split("/");
+        if (folders.length == 1) {
+            return this.getFolder(name);
         }
         Folder currentFolder = this;
         List<Source> list = currentFolder.getContains();
@@ -309,10 +314,13 @@ public class Folder implements Source {
     }
 
     public boolean removeFolderAt(String name, String path) {
-        String[] folders = path.split("/");
-        if (folders.length == 0) {
-            System.out.println("Path not valid");
+        if (path == null || path.isEmpty()) {
             return false;
+        }
+        String[] folders = path.split("/");
+        if (folders.length == 1) {
+            this.removeFolder(name);
+            return true;
         }
         Folder currentFolder = this;
         List<Source> list = currentFolder.getContains();
@@ -342,11 +350,11 @@ public class Folder implements Source {
     }
 
     public boolean addFolderAt(Folder f, String path) {
-        if (path == null || path.equals("")) {
+        if (path == null || path.isEmpty()) {
             return false;
         }
         String[] folders = path.split("/");
-        if (folders.length == 0) {
+        if (folders.length == 1) {
             this.addFolder(f);
             return true;
         }
