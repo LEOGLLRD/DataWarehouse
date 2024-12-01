@@ -5,6 +5,7 @@ import com.stockchain.dto.requests.DepositFileRequest;
 import com.stockchain.dto.requests.GetFileRequest;
 import com.stockchain.dto.responses.GetFileResponse;
 import com.stockchain.entity.File;
+import com.stockchain.repository.HomeRepo;
 import com.stockchain.repository.UserRepo;
 import com.stockchain.dto.responses.Response;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,6 +41,9 @@ public class UserService {
     @Autowired
     private UserRepo userRepo;
 
+    @Autowired
+    private HomeRepo homeRepo;
+
 
     public Response addFile(DepositFileRequest fileRequest, HttpServletRequest request) throws IOException {
         Response response = new Response();
@@ -48,10 +52,18 @@ public class UserService {
             //Getting the mail (id) of the user, from the token
             String idUser = fileRequest.getUserName();
             if (idUser == null) {
-                response.setMessage("Invalid token");
+                response.setMessage("No IdUser");
                 response.setStatusCode(400);
                 return response;
             }
+
+            //Checking if the parameters are all set
+            if (fileRequest.getUserName().isEmpty() || fileRequest.getName().isEmpty() || fileRequest.getPath().isEmpty()) {
+                response.setStatusCode(400);
+                response.setMessage("One or several of the parameters are empty");
+                return response;
+            }
+
 
             DBObject metadata = new BasicDBObject();
             metadata.put("fileSize", fileRequest.getFile().getSize());

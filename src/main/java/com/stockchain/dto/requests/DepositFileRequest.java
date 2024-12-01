@@ -11,5 +11,5 @@ public class DepositFileRequest {
     private String name;
     private MultipartFile file;
     private String userName;
-
+    private String path;
 }

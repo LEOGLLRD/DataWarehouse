@@ -27,16 +27,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        
+
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(request -> request.requestMatchers("/public/**").permitAll()
-                        .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
-                        .requestMatchers("/user/auth/**").permitAll()
-                        .requestMatchers("/user/func/**").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers("/stocker/auth/**").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers("/stocker/func/**").hasAnyAuthority("STOCKER")
-                        .anyRequest().permitAll()
+                .authorizeHttpRequests(request -> request.requestMatchers("**").permitAll()
 
                 );
         return httpSecurity.build();

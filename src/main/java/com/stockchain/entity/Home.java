@@ -24,18 +24,9 @@ public class Home {
 
     @Id
     @Generated
-    private Integer id;
+    private String id;
     private String userId;
     private String home;
-
-
-    public void test(){
-
-        JsonObject root = new JsonObject();
-        JsonArray home = new JsonArray();
-        root.add("home", home);
-
-    }
 
 
 }

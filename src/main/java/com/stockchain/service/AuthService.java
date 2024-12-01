@@ -46,6 +46,7 @@ public class AuthService {
                 Home home = new Home();
                 home.setUserId(ourUserResult.get_id());
                 home.setHome("{root : {}}");
+                System.out.println("Trying to create home");
                 homeRepo.save(home);
                 response.setMessage("User Saved and home created Successfully");
                 response.setStatusCode(200);
