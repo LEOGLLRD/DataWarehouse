@@ -79,7 +79,7 @@ public class Folder implements Source {
             return false;
         }
         String[] folders = path.split("/");
-        if (folders.length == 1) {
+        if (folders.length == 1 && path.equals("home")) {
             this.addFile(file);
             return true;
         }
@@ -138,7 +138,7 @@ public class Folder implements Source {
             return false;
         }
         String[] folders = path.split("/");
-        if (folders.length == 1) {
+        if (folders.length == 1 && path.equals("home")) {
             this.removeFile(name);
             return true;
         }
@@ -208,7 +208,7 @@ public class Folder implements Source {
             return null;
         }
 
-        if (folders.length == 1) {
+        if (folders.length == 1 && path.equals("home")) {
             return this.getFile(name);
         }
         Folder currentFolder = this;
@@ -219,6 +219,7 @@ public class Folder implements Source {
             System.out.println(folder);
             for (Source s : list) {
                 if (s instanceof Folder) {
+                    System.out.println("is a folder");
                     if (((Folder) s).getName().equals(folder)) {
                         currentFolder = (Folder) s;
                         list = currentFolder.getContains();
@@ -232,7 +233,7 @@ public class Folder implements Source {
             }
             if (i == folders.length - 1) {
                 System.out.println("Finished");
-                currentFolder.getFile(name);
+                return currentFolder.getFile(name);
             }
         }
         return null;
@@ -287,7 +288,7 @@ public class Folder implements Source {
             return null;
         }
         String[] folders = path.split("/");
-        if (folders.length == 1) {
+        if (folders.length == 1 && path.equals("home")) {
             return this.getFolder(name);
         }
         Folder currentFolder = this;
@@ -322,7 +323,7 @@ public class Folder implements Source {
             return false;
         }
         String[] folders = path.split("/");
-        if (folders.length == 1) {
+        if (folders.length == 1 && path.equals("home")) {
             this.removeFolder(name);
             return true;
         }
@@ -358,7 +359,7 @@ public class Folder implements Source {
             return false;
         }
         String[] folders = path.split("/");
-        if (folders.length == 1) {
+        if (folders.length == 1 && path.equals("home")) {
             this.addFolder(f);
             return true;
         }

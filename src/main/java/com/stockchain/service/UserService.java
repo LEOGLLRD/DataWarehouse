@@ -46,8 +46,6 @@ public class UserService {
     private HomeRepo homeRepo;
 
     @Autowired
-    private MongoTemplate mongoTemplate;
-    @Autowired
     private Gson gson;
 
 
@@ -310,10 +308,24 @@ public class UserService {
             Home hm = h.get();
             com.stockchain.util.Home home = com.stockchain.util.Home.jsonToHome(hm.getHome());
             //Deleting the folder at path
+            System.out.println("File name : " + deleteFileRequest.getFileName());
+            System.out.println("File path : " + deleteFileRequest.getPath());
+            com.stockchain.util.File file = home.getFolder().getFileAt(deleteFileRequest.getFileName(), deleteFileRequest.getPath());
+            if (file == null) {
+                response.setStatusCode(400);
+                response.setMessage("File not found");
+                return response;
+            }
+            System.out.println("File : " + file.toString());
+            ObjectId objectId = new ObjectId(file.getId());
             home.getFolder().removeFileAt(deleteFileRequest.getFileName(), deleteFileRequest.getPath());
             Home finalHome = new Home();
             finalHome.setHome(gson.toJson(home));
             finalHome.setUserId(deleteFileRequest.getIdUser());
+            //Removing the file
+            Query query = new Query(Criteria.where("_id").is(objectId));
+            template.delete(query);
+            // And updating the home
             homeRepo.updateHome(deleteFileRequest.getIdUser(), finalHome);
             response.setMessage("File removed successfully");
             response.setStatusCode(200);
