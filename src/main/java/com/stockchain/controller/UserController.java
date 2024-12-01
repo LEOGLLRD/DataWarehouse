@@ -47,13 +47,16 @@ public class UserController {
     }
 
 
-
     @GetMapping(value = "/func/get", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<ByteArrayResource> getFile(GetFileRequest getFileRequest, HttpServletRequest request) throws IOException {
+    public ResponseEntity getFile(GetFileRequest getFileRequest, HttpServletRequest request) throws IOException {
         GetFileResponse getFileResponse = userService.downloadFile(getFileRequest);
-        return ResponseEntity.ok().contentType(MediaType.parseMediaType(getFileResponse.getFile().getFileType()))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + getFileResponse.getFile().getFilename() + "\"")
-                .body(new ByteArrayResource(getFileResponse.getFile().getFile()));
+        if (getFileResponse.getStatusCode() != 200) {
+            return ResponseEntity.badRequest().body(getFileResponse);
+
+        } else
+            return ResponseEntity.ok().contentType(MediaType.parseMediaType(getFileResponse.getFile().getFileType()))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + getFileResponse.getFile().getFilename() + "\"")
+                    .body(new ByteArrayResource(getFileResponse.getFile().getFile()));
     }
 
 }

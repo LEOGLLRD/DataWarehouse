@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class GetFileRequest {
 
-    String userName;
+    String idUser;
     String fileName;
     String path;
 

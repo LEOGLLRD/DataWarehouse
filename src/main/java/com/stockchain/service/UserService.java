@@ -12,17 +12,13 @@ import com.stockchain.repository.HomeRepo;
 import com.stockchain.repository.UserRepo;
 import com.stockchain.dto.responses.Response;
 import com.stockchain.util.Folder;
-import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.gridfs.GridFsOperations;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.multipart.MultipartFile;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import org.springframework.stereotype.Service;
@@ -52,6 +48,8 @@ public class UserService {
 
     @Autowired
     private MongoTemplate mongoTemplate;
+    @Autowired
+    private Gson gson;
 
 
     public Response addFile(DepositFileRequest fileRequest) throws IOException {
@@ -116,17 +114,43 @@ public class UserService {
 
         GetFileResponse response = new GetFileResponse();
         try {
-            //Getting the mail (id) of the user, from the token
-            String idUser = fileRequest.getUserName();
-            if (idUser == null) {
-                response.setMessage("No name specified");
+            //Checking all the parameters are set
+            if (fileRequest.getIdUser() == null || fileRequest.getIdUser().isEmpty()
+                    || fileRequest.getFileName() == null || fileRequest.getFileName().isEmpty()
+                    || fileRequest.getPath() == null || fileRequest.getPath().isEmpty()) {
+                response.setMessage("One or several of the parameters are empty");
                 response.setStatusCode(400);
                 return response;
             }
+            //Getting the user Home
+            String idUser = fileRequest.getIdUser();
 
+            Optional<Home> h = homeRepo.findByUserId(idUser);
+            if (h.isEmpty()) {
+                response.setStatusCode(400);
+                response.setMessage("You have No Home");
+                return response;
+            }
+
+            System.out.println("File name requested : " + fileRequest.getFileName());
+            System.out.println("Path requested : " + fileRequest.getPath());
+            //Going through the tree and finding the file
+            Home hm = h.get();
+            com.stockchain.util.Home home = com.stockchain.util.Home.jsonToHome(hm.getHome());
+            System.out.println("JSON  : " + gson.toJson(home));
+            com.stockchain.util.File file = home.getFolder().getFileAt(fileRequest.getFileName(), fileRequest.getPath());
+            //Checking that the file was found
+            if (file == null) {
+                response.setStatusCode(400);
+                response.setMessage("File not found");
+                return response;
+            }
+
+            System.out.println("file Id : " + file.getId());
+            ObjectId objectId = new ObjectId(file.getId());
+            System.out.println("objectId : " + objectId);
             GridFSFile gridFSFile = template.findOne(new Query(new Criteria().andOperator(
-                    Criteria.where("metadata.userId").is(idUser),
-                    Criteria.where("filename").is(fileRequest.getFileName())
+                    Criteria.where("_id").is(objectId)
             )));
 
             File loadFile = new File();

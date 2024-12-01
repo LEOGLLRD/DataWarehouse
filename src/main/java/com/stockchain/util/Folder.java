@@ -203,9 +203,13 @@ public class Folder implements Source {
     //      Path must be : "folder1"
     public File getFileAt(String name, String path) {
         String[] folders = path.split("/");
-        if (folders.length == 0) {
-            System.out.println("Path not valid");
+
+        if (path == null || path.isEmpty()) {
             return null;
+        }
+
+        if (folders.length == 1) {
+            return this.getFile(name);
         }
         Folder currentFolder = this;
         List<Source> list = currentFolder.getContains();
