@@ -5,20 +5,12 @@ import com.stockchain.dto.requests.DepositFileRequest;
 import com.stockchain.dto.requests.GetFileRequest;
 import com.stockchain.dto.responses.GetFileResponse;
 import com.stockchain.entity.File;
-import com.stockchain.entity.User;
-import com.stockchain.exception.ArgumentNotFilledException;
-import com.stockchain.exception.NoFileException;
-import com.stockchain.repository.FileRepo;
 import com.stockchain.repository.UserRepo;
 import com.stockchain.dto.responses.Response;
-import com.stockchain.util.JWTUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoAction;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Meta;
 import org.springframework.data.mongodb.gridfs.GridFsOperations;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,12 +26,10 @@ import org.springframework.data.mongodb.core.query.Query;
 import java.io.IOException;
 
 @Service
-public class UserService implements UserDetailsService {
+public class UserService {
 
     public static String tempPath = "src/temp/";
 
-    @Autowired
-    private JWTUtils jwtUtils;
 
     @Autowired
     private GridFsTemplate template;
@@ -50,18 +40,13 @@ public class UserService implements UserDetailsService {
     @Autowired
     private UserRepo userRepo;
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepo.findBy_id(username).orElseThrow();
-    }
 
-
-    public Response addFile(MultipartFile upload, HttpServletRequest request) throws IOException {
+    public Response addFile(DepositFileRequest fileRequest, HttpServletRequest request) throws IOException {
         Response response = new Response();
         try {
 
             //Getting the mail (id) of the user, from the token
-            String idUser = getUserEmailFromToken(request);
+            String idUser = fileRequest.getUserName();
             if (idUser == null) {
                 response.setMessage("Invalid token");
                 response.setStatusCode(400);
@@ -69,9 +54,9 @@ public class UserService implements UserDetailsService {
             }
 
             DBObject metadata = new BasicDBObject();
-            metadata.put("fileSize", upload.getSize());
+            metadata.put("fileSize", fileRequest.getFile().getSize());
             metadata.put("userEmail", idUser);
-            Object fileID = template.store(upload.getInputStream(), upload.getOriginalFilename(), upload.getContentType(), metadata);
+            Object fileID = template.store(fileRequest.getFile().getInputStream(), fileRequest.getFile().getOriginalFilename(), fileRequest.getFile().getContentType(), metadata);
             System.out.println(fileID);
             response.setMessage("File added successfully");
             response.setStatusCode(200);
@@ -84,21 +69,21 @@ public class UserService implements UserDetailsService {
 
     }
 
-    public GetFileResponse downloadFile(String name, HttpServletRequest request) throws IOException {
+    public GetFileResponse downloadFile(GetFileRequest fileRequest, HttpServletRequest request) throws IOException {
 
         GetFileResponse response = new GetFileResponse();
         try {
             //Getting the mail (id) of the user, from the token
-            String idUser = getUserEmailFromToken(request);
+            String idUser = fileRequest.getUserName();
             if (idUser == null) {
-                response.setMessage("Invalid token");
+                response.setMessage("No name specified");
                 response.setStatusCode(400);
                 return response;
             }
-            System.out.println(name);
+
             GridFSFile gridFSFile = template.findOne(new Query(new Criteria().andOperator(
                     Criteria.where("metadata.userEmail").is(idUser),
-                    Criteria.where("filename").is(name)
+                    Criteria.where("filename").is(fileRequest.getFileName())
             )));
 
             File loadFile = new File();
@@ -131,12 +116,5 @@ public class UserService implements UserDetailsService {
 
     }
 
-    public String getUserEmailFromToken(HttpServletRequest request) {
-        final String authHeader = request.getHeader("Authorization");
-        final String jwtToken = authHeader.substring(7);
-        String username = jwtUtils.extractUsername(jwtToken);
-        System.out.println(username);
-        return userRepo.findBy_id(username).orElseThrow().get_id();
-    }
 
 }

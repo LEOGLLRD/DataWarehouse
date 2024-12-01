@@ -16,7 +16,7 @@ import java.util.List;
 @Getter
 @Setter
 @Document(collection = "user")
-public class User implements UserDetails {
+public class User {
 
 
     @Id
@@ -24,37 +24,6 @@ public class User implements UserDetails {
 
     private String password;
     private String role;
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role));
-    }
-
-    @Override
-    public String getUsername() {
-        return _id;
-    }
-
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
 
 }
 
