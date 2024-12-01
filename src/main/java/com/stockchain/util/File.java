@@ -3,12 +3,12 @@ package com.stockchain.util;
 
 public class File implements Source {
     String filename;
-    int id;
+    String id;
 
     public File() {
     }
 
-    public File(String filename, int id) {
+    public File(String filename, String id) {
         this.filename = filename;
         this.id = id;
     }
@@ -21,11 +21,11 @@ public class File implements Source {
         this.filename = filename;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 }

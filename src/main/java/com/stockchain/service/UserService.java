@@ -1,16 +1,19 @@
 package com.stockchain.service;
 
+import com.google.gson.Gson;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import com.stockchain.dto.requests.DepositFileRequest;
 import com.stockchain.dto.requests.GetFileRequest;
 import com.stockchain.dto.responses.GetFileResponse;
 import com.stockchain.entity.File;
+import com.stockchain.entity.Home;
 import com.stockchain.repository.HomeRepo;
 import com.stockchain.repository.UserRepo;
 import com.stockchain.dto.responses.Response;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.gridfs.GridFsOperations;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
@@ -25,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.mongodb.core.query.Query;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -43,6 +47,9 @@ public class UserService {
 
     @Autowired
     private HomeRepo homeRepo;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
 
     public Response addFile(DepositFileRequest fileRequest, HttpServletRequest request) throws IOException {
@@ -64,11 +71,33 @@ public class UserService {
                 return response;
             }
 
+            //Getting the home of the user
+            Optional<Home> h = homeRepo.findByUserId(idUser);
+
+            if (h.isEmpty()) {
+                response.setStatusCode(400);
+                response.setMessage("You have No Home");
+                return response;
+            }
+
 
             DBObject metadata = new BasicDBObject();
             metadata.put("fileSize", fileRequest.getFile().getSize());
-            metadata.put("userEmail", idUser);
+            metadata.put("userId", idUser);
             Object fileID = template.store(fileRequest.getFile().getInputStream(), fileRequest.getFile().getOriginalFilename(), fileRequest.getFile().getContentType(), metadata);
+
+            System.out.println("Adding the file : " + fileRequest.getName() + " at : " + fileRequest.getPath());
+            //Creating the structure of the new home based on the old one
+            Gson gson = new Gson();
+            com.stockchain.util.Home home = com.stockchain.util.Home.jsonToHome(h.get().getHome());
+            System.out.println("Old home : " + gson.toJson(home));
+            home.getFolder().addFileAt(new com.stockchain.util.File(fileRequest.getName(), fileID.toString()), fileRequest.getPath());
+            System.out.println("New home : " + gson.toJson(home));
+            Home finalHome = new Home();
+            finalHome.setUserId(idUser);
+            finalHome.setHome(gson.toJson(home));
+            System.out.println(finalHome.getHome());
+            homeRepo.updateHome(idUser, finalHome);
             System.out.println(fileID);
             response.setMessage("File added successfully");
             response.setStatusCode(200);
@@ -94,7 +123,7 @@ public class UserService {
             }
 
             GridFSFile gridFSFile = template.findOne(new Query(new Criteria().andOperator(
-                    Criteria.where("metadata.userEmail").is(idUser),
+                    Criteria.where("metadata.userId").is(idUser),
                     Criteria.where("filename").is(fileRequest.getFileName())
             )));
 

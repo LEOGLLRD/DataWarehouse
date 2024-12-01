@@ -57,11 +57,12 @@ public class Home {
             if (containedObject.has("name")) {
                 folder.addFolder(jsonToFolder(String.valueOf(containedObject)));
             } else if (containedObject.has("filename")) {
-                folder.addFile(new File(containedObject.get("filename").getAsString(), containedObject.get("id").getAsInt()));
+                folder.addFile(new File(containedObject.get("filename").getAsString(), containedObject.get("id").getAsString()));
             }
         }
 
         return folder;
     }
+
 
 }

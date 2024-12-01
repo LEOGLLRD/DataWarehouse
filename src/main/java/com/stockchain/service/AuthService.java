@@ -1,5 +1,6 @@
 package com.stockchain.service;
 
+import com.google.gson.Gson;
 import com.stockchain.dto.requests.UserSignInRequest;
 import com.stockchain.dto.requests.UserSignUpRequest;
 import com.stockchain.dto.responses.Response;
@@ -43,9 +44,10 @@ public class AuthService {
             //Checking the creation of the user is a success
             if (ourUserResult.get_id() != null) {
                 //We can now create the home folder for the user
+                Gson gson = new Gson();
                 Home home = new Home();
                 home.setUserId(ourUserResult.get_id());
-                home.setHome("{root : {}}");
+                home.setHome(gson.toJson(new com.stockchain.util.Home(user.get_id())));
                 System.out.println("Trying to create home");
                 homeRepo.save(home);
                 response.setMessage("User Saved and home created Successfully");

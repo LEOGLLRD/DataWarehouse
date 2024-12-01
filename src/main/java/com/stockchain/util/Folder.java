@@ -1,7 +1,6 @@
 package com.stockchain.util;
 
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,13 +71,18 @@ public class Folder implements Source {
     //Example :
     //      To add the file "file1" at "/home/folder1"
     //      Path must be : "folder1"
+
+    //If no path given, the file is added in the current folder
     public boolean addFileAt(File file, String path) {
-        String[] folders = path.split("/");
-        if (folders.length == 0) {
-            System.out.println("Path not valid");
+
+        if (path == null || path.equals("")) {
             return false;
         }
-        System.out.println("Valid Path");
+        String[] folders = path.split("/");
+        if (folders.length == 1) {
+            this.addFile(file);
+            return true;
+        }
         //Setting the first folder to go through which is this at beginning
         Folder currentFolder = this;
         List<Source> list = currentFolder.getContains();
@@ -330,7 +334,6 @@ public class Folder implements Source {
                 return false;
             }
             if (i == folders.length - 1) {
-                System.out.println("Finished");
                 currentFolder.removeFolder(name);
                 return true;
             }
@@ -339,10 +342,13 @@ public class Folder implements Source {
     }
 
     public boolean addFolderAt(Folder f, String path) {
+        if (path == null || path.equals("")) {
+            return false;
+        }
         String[] folders = path.split("/");
         if (folders.length == 0) {
-            System.out.println("Path not valid");
-            return false;
+            this.addFolder(f);
+            return true;
         }
         Folder currentFolder = this;
         List<Source> list = currentFolder.getContains();
@@ -364,7 +370,6 @@ public class Folder implements Source {
                 return false;
             }
             if (i == folders.length - 1) {
-                System.out.println("Finished");
                 currentFolder.addFolder(f);
                 return true;
             }
