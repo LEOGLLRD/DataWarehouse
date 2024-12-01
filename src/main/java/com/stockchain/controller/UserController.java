@@ -43,13 +43,13 @@ public class UserController {
     }
 
     @PostMapping(value = "/func/createFolder", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Response> createFolder(CreateFolderRequest createFolderRequest) throws IOException {
+    public ResponseEntity<Response> createFolder(CreateFolderRequest createFolderRequest) {
         return ResponseEntity.ok(userService.createFolder(createFolderRequest));
     }
 
 
     @GetMapping(value = "/func/get", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity getFile(GetFileRequest getFileRequest, HttpServletRequest request) throws IOException {
+    public ResponseEntity getFile(GetFileRequest getFileRequest) throws IOException {
         GetFileResponse getFileResponse = userService.downloadFile(getFileRequest);
         if (getFileResponse.getStatusCode() != 200) {
             return ResponseEntity.badRequest().body(getFileResponse);
@@ -61,10 +61,19 @@ public class UserController {
     }
 
     @GetMapping(value = "/func/getHome", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Response> getHome(GetHomeRequest getHomeRequest) throws IOException {
+    public ResponseEntity<Response> getHome(GetHomeRequest getHomeRequest) {
         return ResponseEntity.ok(userService.getHome(getHomeRequest));
     }
 
+    @PostMapping(value = "/func/deleteFolder", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<Response> deleteFolder(DeleteFolderRequest deleteFolderRequest) {
+        return ResponseEntity.ok(userService.deleteFolder(deleteFolderRequest));
+    }
+
+    @PostMapping(value = "/func/deleteFile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<Response> deleteFile(DeleteFileRequest deleteFileRequest) {
+        return ResponseEntity.ok(userService.deleteFile(deleteFileRequest));
+    }
 }
 
 

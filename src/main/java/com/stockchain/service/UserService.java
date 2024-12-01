@@ -2,10 +2,7 @@ package com.stockchain.service;
 
 import com.google.gson.Gson;
 import com.mongodb.client.gridfs.model.GridFSFile;
-import com.stockchain.dto.requests.CreateFolderRequest;
-import com.stockchain.dto.requests.DepositFileRequest;
-import com.stockchain.dto.requests.GetFileRequest;
-import com.stockchain.dto.requests.GetHomeRequest;
+import com.stockchain.dto.requests.*;
 import com.stockchain.dto.responses.GetFileResponse;
 import com.stockchain.dto.responses.GetHomeResponse;
 import com.stockchain.entity.File;
@@ -256,6 +253,76 @@ public class UserService {
         }
 
 
+    }
+
+    public Response deleteFolder(DeleteFolderRequest deleteFolderRequest) {
+        Response response = new Response();
+        //Checking all the parameters are set
+        try {
+            if (deleteFolderRequest.getIdUser() == null || deleteFolderRequest.getIdUser().isEmpty()
+                    || deleteFolderRequest.getPath() == null || deleteFolderRequest.getPath().isEmpty()
+                    || deleteFolderRequest.getFolderName() == null || deleteFolderRequest.getFolderName().isEmpty()) {
+                response.setStatusCode(400);
+                response.setMessage("One or several of the parameters are empty");
+                return response;
+            }
+            Optional<Home> h = homeRepo.findByUserId(deleteFolderRequest.getIdUser());
+            if (h.isEmpty()) {
+                response.setStatusCode(400);
+                response.setMessage("You have No Home");
+                return response;
+            }
+            Home hm = h.get();
+            com.stockchain.util.Home home = com.stockchain.util.Home.jsonToHome(hm.getHome());
+            //Deleting the folder at path
+            home.getFolder().removeFolderAt(deleteFolderRequest.getFolderName(), deleteFolderRequest.getPath());
+            Home finalHome = new Home();
+            finalHome.setHome(gson.toJson(home));
+            finalHome.setUserId(deleteFolderRequest.getIdUser());
+            homeRepo.updateHome(deleteFolderRequest.getIdUser(), finalHome);
+            response.setMessage("Folder removed successfully");
+            response.setStatusCode(200);
+            return response;
+        } catch (Exception e) {
+            response.setStatusCode(500);
+            response.setMessage(e.getMessage());
+            return response;
+        }
+    }
+
+    public Response deleteFile(DeleteFileRequest deleteFileRequest) {
+        Response response = new Response();
+        //Checking all the parameters are set
+        try {
+            if (deleteFileRequest.getIdUser() == null || deleteFileRequest.getIdUser().isEmpty()
+                    || deleteFileRequest.getPath() == null || deleteFileRequest.getPath().isEmpty()
+                    || deleteFileRequest.getFileName() == null || deleteFileRequest.getFileName().isEmpty()) {
+                response.setStatusCode(400);
+                response.setMessage("One or several of the parameters are empty");
+                return response;
+            }
+            Optional<Home> h = homeRepo.findByUserId(deleteFileRequest.getIdUser());
+            if (h.isEmpty()) {
+                response.setStatusCode(400);
+                response.setMessage("You have No Home");
+                return response;
+            }
+            Home hm = h.get();
+            com.stockchain.util.Home home = com.stockchain.util.Home.jsonToHome(hm.getHome());
+            //Deleting the folder at path
+            home.getFolder().removeFileAt(deleteFileRequest.getFileName(), deleteFileRequest.getPath());
+            Home finalHome = new Home();
+            finalHome.setHome(gson.toJson(home));
+            finalHome.setUserId(deleteFileRequest.getIdUser());
+            homeRepo.updateHome(deleteFileRequest.getIdUser(), finalHome);
+            response.setMessage("File removed successfully");
+            response.setStatusCode(200);
+            return response;
+        } catch (Exception e) {
+            response.setStatusCode(500);
+            response.setMessage(e.getMessage());
+            return response;
+        }
     }
 
 
