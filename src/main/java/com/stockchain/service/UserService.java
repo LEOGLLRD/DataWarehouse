@@ -5,7 +5,9 @@ import com.mongodb.client.gridfs.model.GridFSFile;
 import com.stockchain.dto.requests.CreateFolderRequest;
 import com.stockchain.dto.requests.DepositFileRequest;
 import com.stockchain.dto.requests.GetFileRequest;
+import com.stockchain.dto.requests.GetHomeRequest;
 import com.stockchain.dto.responses.GetFileResponse;
+import com.stockchain.dto.responses.GetHomeResponse;
 import com.stockchain.entity.File;
 import com.stockchain.entity.Home;
 import com.stockchain.repository.HomeRepo;
@@ -217,6 +219,36 @@ public class UserService {
             response.setStatusCode(200);
             return response;
 
+        } catch (Exception e) {
+            response.setStatusCode(500);
+            response.setMessage(e.getMessage());
+            return response;
+        }
+
+
+    }
+
+    public GetHomeResponse getHome(GetHomeRequest getHomeRequest) {
+        GetHomeResponse response = new GetHomeResponse();
+        try {
+            //Checking if the mail is given
+            if (getHomeRequest.getIdUser() == null || getHomeRequest.getIdUser().isEmpty()) {
+                response.setStatusCode(400);
+                response.setMessage("One or several of the parameters are empty");
+                return response;
+            }
+            Optional<Home> h = homeRepo.findByUserId(getHomeRequest.getIdUser());
+            if (h.isEmpty()) {
+                response.setStatusCode(400);
+                response.setMessage("You have No Home");
+                return response;
+            }
+            Home hm = h.get();
+
+            response.setMessage("Home successfully recovered");
+            response.setHome(hm.getHome());
+            response.setStatusCode(200);
+            return response;
         } catch (Exception e) {
             response.setStatusCode(500);
             response.setMessage(e.getMessage());

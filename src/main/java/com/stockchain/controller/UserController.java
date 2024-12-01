@@ -2,6 +2,7 @@ package com.stockchain.controller;
 
 import com.stockchain.dto.requests.*;
 import com.stockchain.dto.responses.GetFileResponse;
+import com.stockchain.dto.responses.GetHomeResponse;
 import com.stockchain.dto.responses.Response;
 import com.stockchain.service.AuthService;
 import com.stockchain.service.UserService;
@@ -57,6 +58,11 @@ public class UserController {
             return ResponseEntity.ok().contentType(MediaType.parseMediaType(getFileResponse.getFile().getFileType()))
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + getFileResponse.getFile().getFilename() + "\"")
                     .body(new ByteArrayResource(getFileResponse.getFile().getFile()));
+    }
+
+    @GetMapping(value = "/func/getHome", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<Response> getHome(GetHomeRequest getHomeRequest) throws IOException {
+        return ResponseEntity.ok(userService.getHome(getHomeRequest));
     }
 
 }
