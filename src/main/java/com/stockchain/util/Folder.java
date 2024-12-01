@@ -96,7 +96,7 @@ public class Folder implements Source {
             boolean found = false;
             String folder = folders[i];
             System.out.println("Folder " + folder);
-            System.out.println(folder);
+
             for (Source s : list) {
                 if (s instanceof Folder) {
                     //Checking if the s folder is the one want to go through after
@@ -117,7 +117,7 @@ public class Folder implements Source {
 
             //Checking if we are at the end of the path
             if (i == folders.length - 1) {
-                System.out.println("Finished");
+
                 currentFolder.addFile(file);
                 return true;
             }
@@ -152,7 +152,7 @@ public class Folder implements Source {
             //Setting a variable to know if we found the folder at each iteration
             boolean found = false;
             String folder = folders[i];
-            System.out.println(folder);
+
             for (Source s : list) {
                 if (s instanceof Folder) {
                     //Checking if the s folder is the one want to go through after
@@ -173,7 +173,7 @@ public class Folder implements Source {
 
             //Checking if we are at the end of the path
             if (i == folders.length - 1) {
-                System.out.println("Finished");
+
                 currentFolder.removeFile(name);
                 return true;
             }
@@ -216,10 +216,9 @@ public class Folder implements Source {
         for (int i = 0; i < folders.length; i++) {
             boolean found = false;
             String folder = folders[i];
-            System.out.println(folder);
+
             for (Source s : list) {
                 if (s instanceof Folder) {
-                    System.out.println("is a folder");
                     if (((Folder) s).getName().equals(folder)) {
                         currentFolder = (Folder) s;
                         list = currentFolder.getContains();
@@ -232,7 +231,7 @@ public class Folder implements Source {
                 return null;
             }
             if (i == folders.length - 1) {
-                System.out.println("Finished");
+
                 return currentFolder.getFile(name);
             }
         }
@@ -296,7 +295,7 @@ public class Folder implements Source {
         for (int i = 0; i < folders.length; i++) {
             boolean found = false;
             String folder = folders[i];
-            System.out.println(folder);
+
             for (Source s : list) {
                 if (s instanceof Folder) {
                     if (((Folder) s).getName().equals(folder)) {
@@ -311,7 +310,7 @@ public class Folder implements Source {
                 return null;
             }
             if (i == folders.length - 1) {
-                System.out.println("Finished");
+
                 return currentFolder;
             }
         }
@@ -332,7 +331,7 @@ public class Folder implements Source {
         for (int i = 0; i < folders.length; i++) {
             boolean found = false;
             String folder = folders[i];
-            System.out.println(folder);
+
             for (Source s : list) {
                 if (s instanceof Folder) {
                     if (((Folder) s).getName().equals(folder)) {
@@ -368,7 +367,7 @@ public class Folder implements Source {
         for (int i = 0; i < folders.length; i++) {
             boolean found = false;
             String folder = folders[i];
-            System.out.println(folder);
+
             for (Source s : list) {
                 if (s instanceof Folder) {
                     if (((Folder) s).getName().equals(folder)) {

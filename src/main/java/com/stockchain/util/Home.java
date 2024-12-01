@@ -34,7 +34,6 @@ public class Home {
 
     public static Home jsonToHome(String json) {
 
-        System.out.println("base json : " + json);
         //First getting the root folder
         JsonParser parser = new JsonParser();
         JsonObject jsonObject = parser.parse(json).getAsJsonObject();

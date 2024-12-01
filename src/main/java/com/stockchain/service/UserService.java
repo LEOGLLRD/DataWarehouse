@@ -52,25 +52,19 @@ public class UserService {
     public Response addFile(DepositFileRequest fileRequest) throws IOException {
         Response response = new Response();
         try {
-
-            //Getting the mail (id) of the user, from the token
-            String idUser = fileRequest.getUserName();
-            if (idUser == null) {
-                response.setMessage("No IdUser");
-                response.setStatusCode(400);
-                return response;
-            }
-
             //Checking if the parameters are all set
-            if (fileRequest.getUserName().isEmpty() || fileRequest.getName().isEmpty() || fileRequest.getPath().isEmpty()) {
+            if (fileRequest.getName() == null || fileRequest.getName().isEmpty()
+                    || fileRequest.getUserName() == null || fileRequest.getUserName().isEmpty()
+                    || fileRequest.getFile() == null || fileRequest.getPath() == null || fileRequest.getPath().isEmpty()) {
                 response.setStatusCode(400);
                 response.setMessage("One or several of the parameters are empty");
                 return response;
             }
-
+            String idUser = fileRequest.getUserName();
             //Getting the home of the user
             Optional<Home> h = homeRepo.findByUserId(idUser);
 
+            //Checking the home exists
             if (h.isEmpty()) {
                 response.setStatusCode(400);
                 response.setMessage("You have No Home");
@@ -78,24 +72,23 @@ public class UserService {
             }
 
 
+            //Preparing for inserting a new file into the fsfiles and fschunks collections
             DBObject metadata = new BasicDBObject();
             metadata.put("fileSize", fileRequest.getFile().getSize());
             metadata.put("userId", idUser);
             Object fileID = template.store(fileRequest.getFile().getInputStream(), fileRequest.getFile().getOriginalFilename(), fileRequest.getFile().getContentType(), metadata);
 
-            System.out.println("Adding the file : " + fileRequest.getName() + " at : " + fileRequest.getPath());
             //Creating the structure of the new home based on the old one
             Gson gson = new Gson();
             com.stockchain.util.Home home = com.stockchain.util.Home.jsonToHome(h.get().getHome());
-            System.out.println("Old home : " + gson.toJson(home));
             home.getFolder().addFileAt(new com.stockchain.util.File(fileRequest.getName(), fileID.toString()), fileRequest.getPath());
-            System.out.println("New home : " + gson.toJson(home));
             Home finalHome = new Home();
             finalHome.setUserId(idUser);
             finalHome.setHome(gson.toJson(home));
-            System.out.println(finalHome.getHome());
+
+            //Updating the home tree
             homeRepo.updateHome(idUser, finalHome);
-            System.out.println(fileID);
+
             response.setMessage("File added successfully");
             response.setStatusCode(200);
             return response;
@@ -122,6 +115,7 @@ public class UserService {
             //Getting the user Home
             String idUser = fileRequest.getIdUser();
 
+            //Checking the home exists
             Optional<Home> h = homeRepo.findByUserId(idUser);
             if (h.isEmpty()) {
                 response.setStatusCode(400);
@@ -129,12 +123,9 @@ public class UserService {
                 return response;
             }
 
-            System.out.println("File name requested : " + fileRequest.getFileName());
-            System.out.println("Path requested : " + fileRequest.getPath());
             //Going through the tree and finding the file
             Home hm = h.get();
             com.stockchain.util.Home home = com.stockchain.util.Home.jsonToHome(hm.getHome());
-            System.out.println("JSON  : " + gson.toJson(home));
             com.stockchain.util.File file = home.getFolder().getFileAt(fileRequest.getFileName(), fileRequest.getPath());
             //Checking that the file was found
             if (file == null) {
@@ -143,22 +134,21 @@ public class UserService {
                 return response;
             }
 
-            System.out.println("file Id : " + file.getId());
+            //Creating the ObjectID before the query
             ObjectId objectId = new ObjectId(file.getId());
-            System.out.println("objectId : " + objectId);
             GridFSFile gridFSFile = template.findOne(new Query(new Criteria().andOperator(
                     Criteria.where("_id").is(objectId)
             )));
 
             File loadFile = new File();
 
+            //Checking the file has been uploaded
             if (gridFSFile != null && gridFSFile.getMetadata() != null) {
+
+                //Setting metadata informations of the file
                 loadFile.setFilename(gridFSFile.getFilename());
-
                 loadFile.setFileType(gridFSFile.getMetadata().get("_contentType").toString());
-
                 loadFile.setFileSize(gridFSFile.getMetadata().get("fileSize").toString());
-
                 loadFile.setFile(IOUtils.toByteArray(operations.getResource(gridFSFile).getInputStream()));
 
                 response.setMessage("File downloaded successfully");
@@ -181,10 +171,9 @@ public class UserService {
     }
 
     public Response createFolder(CreateFolderRequest createFolderRequest) {
-        //First checking the parameters are set
         Response response = new Response();
         try {
-
+            //First checking the parameters are set
             if (createFolderRequest.getFolderName() == null || createFolderRequest.getFolderName().isEmpty()
                     || createFolderRequest.getPath() == null || createFolderRequest.getPath().isEmpty()
                     || createFolderRequest.getIdUser() == null || createFolderRequest.getIdUser().isEmpty()) {
@@ -195,6 +184,7 @@ public class UserService {
 
             //Getting the home of the user
             Optional<Home> h = homeRepo.findByUserId(createFolderRequest.getIdUser());
+            //And checking if it exists
             if (h.isEmpty()) {
                 response.setStatusCode(400);
                 response.setMessage("You have No Home");
@@ -232,14 +222,17 @@ public class UserService {
                 response.setMessage("One or several of the parameters are empty");
                 return response;
             }
+            //Getting the user's home
             Optional<Home> h = homeRepo.findByUserId(getHomeRequest.getIdUser());
+
+            //And checking if it exists
             if (h.isEmpty()) {
                 response.setStatusCode(400);
                 response.setMessage("You have No Home");
                 return response;
             }
+            //Then sending the home tree as string
             Home hm = h.get();
-
             response.setMessage("Home successfully recovered");
             response.setHome(hm.getHome());
             response.setStatusCode(200);
@@ -255,8 +248,8 @@ public class UserService {
 
     public Response deleteFolder(DeleteFolderRequest deleteFolderRequest) {
         Response response = new Response();
-        //Checking all the parameters are set
         try {
+            //Checking all the parameters are set
             if (deleteFolderRequest.getIdUser() == null || deleteFolderRequest.getIdUser().isEmpty()
                     || deleteFolderRequest.getPath() == null || deleteFolderRequest.getPath().isEmpty()
                     || deleteFolderRequest.getFolderName() == null || deleteFolderRequest.getFolderName().isEmpty()) {
@@ -264,7 +257,9 @@ public class UserService {
                 response.setMessage("One or several of the parameters are empty");
                 return response;
             }
+            //Getting the user's home
             Optional<Home> h = homeRepo.findByUserId(deleteFolderRequest.getIdUser());
+            //And checking if it exists
             if (h.isEmpty()) {
                 response.setStatusCode(400);
                 response.setMessage("You have No Home");
@@ -290,8 +285,9 @@ public class UserService {
 
     public Response deleteFile(DeleteFileRequest deleteFileRequest) {
         Response response = new Response();
-        //Checking all the parameters are set
+
         try {
+            //Checking all the parameters are set
             if (deleteFileRequest.getIdUser() == null || deleteFileRequest.getIdUser().isEmpty()
                     || deleteFileRequest.getPath() == null || deleteFileRequest.getPath().isEmpty()
                     || deleteFileRequest.getFileName() == null || deleteFileRequest.getFileName().isEmpty()) {
@@ -299,7 +295,9 @@ public class UserService {
                 response.setMessage("One or several of the parameters are empty");
                 return response;
             }
+            //Getting the user's home
             Optional<Home> h = homeRepo.findByUserId(deleteFileRequest.getIdUser());
+            //And checking if it exists
             if (h.isEmpty()) {
                 response.setStatusCode(400);
                 response.setMessage("You have No Home");
@@ -308,17 +306,18 @@ public class UserService {
             Home hm = h.get();
             com.stockchain.util.Home home = com.stockchain.util.Home.jsonToHome(hm.getHome());
             //Deleting the folder at path
-            System.out.println("File name : " + deleteFileRequest.getFileName());
-            System.out.println("File path : " + deleteFileRequest.getPath());
             com.stockchain.util.File file = home.getFolder().getFileAt(deleteFileRequest.getFileName(), deleteFileRequest.getPath());
             if (file == null) {
                 response.setStatusCode(400);
                 response.setMessage("File not found");
                 return response;
             }
-            System.out.println("File : " + file.toString());
+            //Creating the ObjectID of the file before the query
             ObjectId objectId = new ObjectId(file.getId());
+
+            //Removing the file from the tree home
             home.getFolder().removeFileAt(deleteFileRequest.getFileName(), deleteFileRequest.getPath());
+            //And setting the new tree home
             Home finalHome = new Home();
             finalHome.setHome(gson.toJson(home));
             finalHome.setUserId(deleteFileRequest.getIdUser());
