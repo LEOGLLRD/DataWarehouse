@@ -23,3 +23,15 @@ Dans ce projet, nous nous sommes passés de plusieurs sécurités afin de nous c
 
 # Cahier des charges 
 
+| Objectif                                                                                 | Description                                                                                     | Priorité |
+|:-----------------------------------------------------------------------------------------|:------------------------------------------------------------------------------------------------|----------|
+| Permettre l'enregistrement d'utilisateurs                                                | Enregistrer en base un utilisateur, et lui créer un home pour qu'il puisse déposer des fichiers | Haute    |
+| Permettre le dépot de fichier à un chemin spécific                                       | Stocker un fichier à un endroit spécific dans l'arbre home de l'utilisateur                     | Haute    |
+| Permettre le téléchargement d'un fichier déposé à un chemin spécific                     | Permettre de récuperer un fichier à un endroit spécific dans l'arbre home de l'utilisateur      | Haute    |
+| Permettre la suppression d'un fichier déposé à un chemin spécific                        | Permettre de supprimer un fichier à un endroit spécific dans l'arbre home de l'utilisateur      | Haute    |
+| Permettre la création d'un dossier à un chemin spécific                                  | Permettre de créer un dossier à un chemin spécifié par l'utilisateur dans son arbre home        | Haute    |
+| Permettre la suppression d'un dossier à un chemin spécific                               | Permettre de supprimer un dossier à un chemin spécifié par l'utilisateur dans son arbre home    | Haute    |
+| Permettre à l'utilisateur de voir son home complet                                       | Afficher à l'utilisateur son arborescence de fichier complète                                   | Haute    |
+| Permettre à l'utilisateur de voir combien de fichier il a déposé                         | Afficher à l'utilisateur le nombre de fichier qu'il a déposé                                    | Moyenne  |
+| Permettre à l'utilisateur de voir la taille de son arborescence de fichier               | Afficher à l'utilisateur la taille en octet de son arborescence de fichier                      | Moyenne  |
+| Permettre à l'utilisateur d'accéder aux fonctions citées plus haut via une interface web | Afficher à l'utilisateur la taille en octet de son arborescence de fichier                      | Moyenne  |
