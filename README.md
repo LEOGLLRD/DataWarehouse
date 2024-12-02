@@ -4,7 +4,8 @@
 
 On localhost:27017 <br>
 With Database name = datawarehouse <br>
-2 collections :
+You can change the port or the database name via the application.properties in "src/main/resources" <br>
+2 collections are required :
 <ol>
 <li>home</li>
 <li>user</li>
@@ -116,7 +117,7 @@ Required
 
 # About the front
 
-The front application couldn't be finished, but all the endpoints are usable.
+The front application couldn't be finished because we got some problem with using Django framework, but all the endpoints are usable.
 Most of the endpoints are usable by the front application.
 For the ones that are not usable, you can still use them by Postman for example.
 
