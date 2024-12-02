@@ -1,0 +1,410 @@
+{
+	"info": {
+		"_postman_id": "198e3e45-25b4-4614-9161-5038b1e0d8e8",
+		"name": "DataWarehouse Project",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24041322",
+		"_collection_link": "https://datawarehouse-3491.postman.co/workspace/Datawarehouse-Workspace~0d0a0240-d3b8-4838-8605-50e17ffe33d8/collection/24041322-198e3e45-25b4-4614-9161-5038b1e0d8e8?action=share&source=collection_link&creator=24041322"
+	},
+	"item": [
+		{
+			"name": "Sign Up",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "email",
+							"value": "leo22@mail.com",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "test",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/user/auth/signup",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"auth",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sign In",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "email",
+							"value": "leo22@mail.com",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "test",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/user/auth/signin",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"auth",
+						"signin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "upload",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "name",
+							"value": "AutoML.docx",
+							"type": "text"
+						},
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/Users/Leoga/Documents/AutoML.docx"
+						},
+						{
+							"key": "idUser",
+							"value": "leo22@mail.com",
+							"type": "text"
+						},
+						{
+							"key": "path",
+							"value": "folder1",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/user/func/deposit",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"func",
+						"deposit"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "cv leo",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create folder",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "idUser",
+							"value": "leo22@mail.com",
+							"type": "text"
+						},
+						{
+							"key": "path",
+							"value": "home",
+							"type": "text"
+						},
+						{
+							"key": "folderName",
+							"value": "folder1",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/user/func/createFolder",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"func",
+						"createFolder"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete folder",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "idUser",
+							"value": "leo22@mail.com",
+							"type": "text"
+						},
+						{
+							"key": "folderName",
+							"value": "folder1",
+							"type": "text"
+						},
+						{
+							"key": "path",
+							"value": "home",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/user/func/deleteFolder",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"func",
+						"deleteFolder"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete file",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "idUser",
+							"value": "leo22@mail.com",
+							"type": "text"
+						},
+						{
+							"key": "fileName",
+							"value": "AutoML.docx",
+							"type": "text"
+						},
+						{
+							"key": "path",
+							"value": "folder1",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/user/func/deleteFile",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"func",
+						"deleteFile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "download",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "fileName",
+							"value": "AutoML.docx",
+							"type": "text"
+						},
+						{
+							"key": "path",
+							"value": "home",
+							"type": "text"
+						},
+						{
+							"key": "idUser",
+							"value": "leo22@mail.com",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/user/func/download",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"func",
+						"download"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getHome",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "idUser",
+							"value": "leo22@mail.com",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/user/func/getHome",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"func",
+						"getHome"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getFilesNumber",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "idUser",
+							"value": "leo22@mail.com",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/user/stats/filesNb",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"stats",
+						"filesNb"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getFilesSize",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "idUser",
+							"value": "leo22@mail.com",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/user/stats/filesSize",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"stats",
+						"filesSize"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
