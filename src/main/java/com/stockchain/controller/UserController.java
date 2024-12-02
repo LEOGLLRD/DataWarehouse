@@ -49,7 +49,7 @@ public class UserController {
     }
 
 
-    @GetMapping(value = "/func/get", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @GetMapping(value = "/func/download", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity getFile(GetFileRequest getFileRequest) throws IOException {
         GetFileResponse getFileResponse = userService.downloadFile(getFileRequest);
         if (getFileResponse.getStatusCode() != 200) {

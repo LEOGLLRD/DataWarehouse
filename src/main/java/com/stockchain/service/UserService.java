@@ -258,7 +258,8 @@ public class UserService {
             //Deleting the files
             if (!deleteFiles(contained)) {
                 response.setStatusCode(400);
-                
+                response.setMessage("Impossible to delete files under the folder");
+                return response;
             }
             //Deleting the folder at path
             home.getFolder().removeFolderAt(deleteFolderRequest.getFolderName(), deleteFolderRequest.getPath());
