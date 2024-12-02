@@ -3,18 +3,15 @@ package com.stockchain.service;
 import com.google.gson.Gson;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import com.stockchain.dto.requests.*;
-import com.stockchain.dto.responses.GetFileResponse;
-import com.stockchain.dto.responses.GetHomeResponse;
+import com.stockchain.dto.responses.*;
 import com.stockchain.entity.File;
 import com.stockchain.entity.Home;
 import com.stockchain.repository.HomeRepo;
 import com.stockchain.repository.UserRepo;
-import com.stockchain.dto.responses.Response;
 import com.stockchain.util.Folder;
 import org.apache.commons.io.IOUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.gridfs.GridFsOperations;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
@@ -25,13 +22,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.mongodb.core.query.Query;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UserService {
-
-    public static String tempPath = "src/temp/";
-
 
     @Autowired
     private GridFsTemplate template;
@@ -40,27 +35,26 @@ public class UserService {
     private GridFsOperations operations;
 
     @Autowired
-    private UserRepo userRepo;
+    private HomeRepo homeRepo;
 
     @Autowired
-    private HomeRepo homeRepo;
+    private UserRepo userRepo;
 
     @Autowired
     private Gson gson;
 
 
-    public Response addFile(DepositFileRequest fileRequest) throws IOException {
+    public Response addFile(DepositFileRequest fileRequest) {
         Response response = new Response();
+        System.out.println(fileRequest.toString());
         try {
             //Checking if the parameters are all set
-            if (fileRequest.getName() == null || fileRequest.getName().isEmpty()
-                    || fileRequest.getUserName() == null || fileRequest.getUserName().isEmpty()
-                    || fileRequest.getFile() == null || fileRequest.getPath() == null || fileRequest.getPath().isEmpty()) {
+            if (fileRequest.getName() == null || fileRequest.getName().isEmpty() || fileRequest.getIdUser() == null || fileRequest.getIdUser().isEmpty() || fileRequest.getFile() == null || fileRequest.getPath() == null || fileRequest.getPath().isEmpty()) {
                 response.setStatusCode(400);
                 response.setMessage("One or several of the parameters are empty");
                 return response;
             }
-            String idUser = fileRequest.getUserName();
+            String idUser = fileRequest.getIdUser();
             //Getting the home of the user
             Optional<Home> h = homeRepo.findByUserId(idUser);
 
@@ -81,7 +75,7 @@ public class UserService {
             //Creating the structure of the new home based on the old one
             Gson gson = new Gson();
             com.stockchain.util.Home home = com.stockchain.util.Home.jsonToHome(h.get().getHome());
-            home.getFolder().addFileAt(new com.stockchain.util.File(fileRequest.getName(), fileID.toString()), fileRequest.getPath());
+            home.getFolder().addFileAt(new com.stockchain.util.File(fileRequest.getName(), fileID.toString(), fileRequest.getFile().getSize()), fileRequest.getPath());
             Home finalHome = new Home();
             finalHome.setUserId(idUser);
             finalHome.setHome(gson.toJson(home));
@@ -105,9 +99,7 @@ public class UserService {
         GetFileResponse response = new GetFileResponse();
         try {
             //Checking all the parameters are set
-            if (fileRequest.getIdUser() == null || fileRequest.getIdUser().isEmpty()
-                    || fileRequest.getFileName() == null || fileRequest.getFileName().isEmpty()
-                    || fileRequest.getPath() == null || fileRequest.getPath().isEmpty()) {
+            if (fileRequest.getIdUser() == null || fileRequest.getIdUser().isEmpty() || fileRequest.getFileName() == null || fileRequest.getFileName().isEmpty() || fileRequest.getPath() == null || fileRequest.getPath().isEmpty()) {
                 response.setMessage("One or several of the parameters are empty");
                 response.setStatusCode(400);
                 return response;
@@ -136,9 +128,7 @@ public class UserService {
 
             //Creating the ObjectID before the query
             ObjectId objectId = new ObjectId(file.getId());
-            GridFSFile gridFSFile = template.findOne(new Query(new Criteria().andOperator(
-                    Criteria.where("_id").is(objectId)
-            )));
+            GridFSFile gridFSFile = template.findOne(new Query(new Criteria().andOperator(Criteria.where("_id").is(objectId))));
 
             File loadFile = new File();
 
@@ -174,9 +164,7 @@ public class UserService {
         Response response = new Response();
         try {
             //First checking the parameters are set
-            if (createFolderRequest.getFolderName() == null || createFolderRequest.getFolderName().isEmpty()
-                    || createFolderRequest.getPath() == null || createFolderRequest.getPath().isEmpty()
-                    || createFolderRequest.getIdUser() == null || createFolderRequest.getIdUser().isEmpty()) {
+            if (createFolderRequest.getFolderName() == null || createFolderRequest.getFolderName().isEmpty() || createFolderRequest.getPath() == null || createFolderRequest.getPath().isEmpty() || createFolderRequest.getIdUser() == null || createFolderRequest.getIdUser().isEmpty()) {
                 response.setStatusCode(400);
                 response.setMessage("One or several of the parameters are empty");
                 return response;
@@ -250,9 +238,7 @@ public class UserService {
         Response response = new Response();
         try {
             //Checking all the parameters are set
-            if (deleteFolderRequest.getIdUser() == null || deleteFolderRequest.getIdUser().isEmpty()
-                    || deleteFolderRequest.getPath() == null || deleteFolderRequest.getPath().isEmpty()
-                    || deleteFolderRequest.getFolderName() == null || deleteFolderRequest.getFolderName().isEmpty()) {
+            if (deleteFolderRequest.getIdUser() == null || deleteFolderRequest.getIdUser().isEmpty() || deleteFolderRequest.getPath() == null || deleteFolderRequest.getPath().isEmpty() || deleteFolderRequest.getFolderName() == null || deleteFolderRequest.getFolderName().isEmpty()) {
                 response.setStatusCode(400);
                 response.setMessage("One or several of the parameters are empty");
                 return response;
@@ -267,6 +253,13 @@ public class UserService {
             }
             Home hm = h.get();
             com.stockchain.util.Home home = com.stockchain.util.Home.jsonToHome(hm.getHome());
+            //First getting all the Files that are contained in this Folder
+            List<String> contained = home.getFolder().getAllUnderContained();
+            //Deleting the files
+            if (!deleteFiles(contained)) {
+                response.setStatusCode(400);
+                
+            }
             //Deleting the folder at path
             home.getFolder().removeFolderAt(deleteFolderRequest.getFolderName(), deleteFolderRequest.getPath());
             Home finalHome = new Home();
@@ -278,7 +271,8 @@ public class UserService {
             return response;
         } catch (Exception e) {
             response.setStatusCode(500);
-            response.setMessage(e.getMessage());
+            response.setError(e.getMessage());
+            response.setMessage("Error while trying to remove the folder");
             return response;
         }
     }
@@ -288,9 +282,7 @@ public class UserService {
 
         try {
             //Checking all the parameters are set
-            if (deleteFileRequest.getIdUser() == null || deleteFileRequest.getIdUser().isEmpty()
-                    || deleteFileRequest.getPath() == null || deleteFileRequest.getPath().isEmpty()
-                    || deleteFileRequest.getFileName() == null || deleteFileRequest.getFileName().isEmpty()) {
+            if (deleteFileRequest.getIdUser() == null || deleteFileRequest.getIdUser().isEmpty() || deleteFileRequest.getPath() == null || deleteFileRequest.getPath().isEmpty() || deleteFileRequest.getFileName() == null || deleteFileRequest.getFileName().isEmpty()) {
                 response.setStatusCode(400);
                 response.setMessage("One or several of the parameters are empty");
                 return response;
@@ -331,7 +323,91 @@ public class UserService {
             return response;
         } catch (Exception e) {
             response.setStatusCode(500);
-            response.setMessage(e.getMessage());
+            response.setError(e.getMessage());
+            response.setMessage("Error while trying to delete file");
+            return response;
+        }
+    }
+
+    public boolean deleteFiles(List<String> ids) {
+        try {
+            for (String id : ids) {
+                //Creating the ObjectID of the file before the query
+                ObjectId objectId = new ObjectId(id);
+                //Removing the file
+                Query query = new Query(Criteria.where("_id").is(objectId));
+                template.delete(query);
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public Response getFilesNb(GetFilesNumberRequest getFilesNumberRequest) {
+        GetFilesNumberResponse response = new GetFilesNumberResponse();
+        try {
+            //First checking all the parameters are set
+            if (getFilesNumberRequest.getIdUser() == null || getFilesNumberRequest.getIdUser().isEmpty()) {
+                response.setStatusCode(400);
+                response.setMessage("One or several of the parameters are empty");
+                return response;
+            }
+            Optional<Home> h = homeRepo.findByUserId(getFilesNumberRequest.getIdUser());
+            if (h.isEmpty()) {
+                response.setStatusCode(400);
+                response.setMessage("You have No Home");
+                return response;
+            }
+            Home hm = h.get();
+            com.stockchain.util.Home home = com.stockchain.util.Home.jsonToHome(hm.getHome());
+            response.setMessage("Number of files recovered");
+            response.setFilesNumber(countFileNb(home));
+            response.setStatusCode(200);
+            return response;
+        } catch (Exception e) {
+            response.setStatusCode(500);
+            response.setError(e.getMessage());
+            response.setMessage("Error while trying to get files number");
+            response.setFilesNumber(0);
+            return response;
+        }
+    }
+
+
+    private int countFileNb(com.stockchain.util.Home home) {
+        Folder root = home.getFolder();
+        return root.getFilesContainedNumber();
+    }
+
+
+    public Response getFilesSize(GetFilesSizeRequest getFilesSizeRequest) {
+        GetFilesSizeResponse response = new GetFilesSizeResponse();
+        try {
+            //Checking all the parameters are set
+            if (getFilesSizeRequest.getIdUser() == null || getFilesSizeRequest.getIdUser().isEmpty()) {
+                response.setStatusCode(400);
+                response.setMessage("One or several of the parameters are empty");
+                return response;
+            }
+            //Checking the home has been found
+            Optional<Home> h = homeRepo.findByUserId(getFilesSizeRequest.getIdUser());
+            if (h.isEmpty()) {
+                response.setStatusCode(400);
+                response.setMessage("You have No Home");
+                return response;
+            }
+            //Getting the home and getting the size of the home.
+            Home hm = h.get();
+            com.stockchain.util.Home home = com.stockchain.util.Home.jsonToHome(hm.getHome());
+            response.setFilesSize(home.getFolder().getFilesContainedSize());
+            response.setStatusCode(200);
+            return response;
+
+        } catch (Exception e) {
+            response.setStatusCode(500);
+            response.setError(e.getMessage());
+            response.setMessage("Error while trying to get files size");
             return response;
         }
     }

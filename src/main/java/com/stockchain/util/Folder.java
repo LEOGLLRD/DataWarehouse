@@ -2,6 +2,7 @@ package com.stockchain.util;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class Folder implements Source {
@@ -389,6 +390,42 @@ public class Folder implements Source {
         return false;
     }
 
+    public int getFilesContainedNumber() {
+        int count = 0;
+        for (Source s : contains) {
+            if (s instanceof Folder) {
+                count += ((Folder) s).getFilesContainedNumber();
+            } else if (s instanceof File) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public long getFilesContainedSize() {
+        long count = 0;
+        for (Source s : contains) {
+            if (s instanceof Folder) {
+                count += ((Folder) s).getFilesContainedSize();
+            } else if (s instanceof File) {
+                System.out.println(((File) s).getSize());
+                count += ((File) s).getSize();
+            }
+        }
+        return count;
+    }
+
+    public List<String> getAllUnderContained() {
+        List<String> idContained = new ArrayList<>();
+        for (Source s : contains) {
+            if (s instanceof File) {
+                idContained.add(((File) s).getId());
+            } else if (s instanceof Folder) {
+                idContained.addAll(((Folder) s).getAllUnderContained());
+            }
+        }
+        return idContained;
+    }
 
     public String toString() {
         return "";

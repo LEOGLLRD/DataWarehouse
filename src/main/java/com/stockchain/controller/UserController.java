@@ -2,6 +2,7 @@ package com.stockchain.controller;
 
 import com.stockchain.dto.requests.*;
 import com.stockchain.dto.responses.GetFileResponse;
+import com.stockchain.dto.responses.GetFilesNumberResponse;
 import com.stockchain.dto.responses.GetHomeResponse;
 import com.stockchain.dto.responses.Response;
 import com.stockchain.service.AuthService;
@@ -73,6 +74,16 @@ public class UserController {
     @PostMapping(value = "/func/deleteFile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<Response> deleteFile(DeleteFileRequest deleteFileRequest) {
         return ResponseEntity.ok(userService.deleteFile(deleteFileRequest));
+    }
+
+    @GetMapping(value = "/stats/filesNb", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<Response> getFilesNb(GetFilesNumberRequest getFilesNumberRequest) {
+        return ResponseEntity.ok(userService.getFilesNb(getFilesNumberRequest));
+    }
+
+    @GetMapping(value = "/stats/filesSize", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<Response> getFilesSize(GetFilesSizeRequest getFilesSizeRequest) {
+        return ResponseEntity.ok(userService.getFilesSize(getFilesSizeRequest));
     }
 }
 

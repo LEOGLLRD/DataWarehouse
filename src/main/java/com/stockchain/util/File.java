@@ -1,9 +1,16 @@
 package com.stockchain.util;
 
 
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class File implements Source {
     String filename;
     String id;
+    long size;
 
     public File() {
     }
@@ -13,19 +20,10 @@ public class File implements Source {
         this.id = id;
     }
 
-    public String getFilename() {
-        return filename;
-    }
-
-    public void setFilename(String filename) {
+    public File(String filename, String id, long size) {
         this.filename = filename;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
         this.id = id;
+        this.size = size;
     }
+
 }
