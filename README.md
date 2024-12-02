@@ -11,6 +11,10 @@ You can change the port or the database name via the application.properties in "
 <li>user</li>
 </ol>
 
+## Django
+
+Run manage.py in Django/Front folder
+
 # How to use each method
 
 ## localhost:8080/user/auth/signup
