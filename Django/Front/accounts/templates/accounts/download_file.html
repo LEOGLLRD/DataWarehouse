@@ -1,0 +1,84 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Télécharger un Fichier</title>
+    <link rel="stylesheet" href="{% static 'accounts/signin.css' %}">
+</head>
+<body>
+    <div class="navbar">
+    <span>Stockchain</span>
+    <div class="navbar-links">
+        <a href="{% url 'create_folder' %}">Créer un Dossier</a>
+        <a href="{% url 'deposit_file' %}">Déposer un Fichier</a>
+        <a href="{% url 'download_file' %}">Télécharger un Fichier</a>
+        <a href="{% url 'delete_file' %}">Supprimer un Fichier</a>
+        <a href="{% url 'delete_folder' %}">Supprimer un Dossier</a>
+        <a href="{% url 'home' %}">Accueil</a>
+    </div>
+</div>
+
+
+    <div class="container">
+        <h2>Télécharger un Fichier</h2>
+        <form id="downloadFileForm">
+            {% csrf_token %}
+            <div>
+                <label for="email">Email</label>
+                <input type="text" id="email" name="email" required>
+            </div>
+            <div>
+                <label for="path">Chemin</label>
+                <input type="text" id="path" name="path" required>
+            </div>
+            <div>
+                <label for="name">Nom du Fichier</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <button type="submit">Télécharger</button>
+        </form>
+    </div>
+
+<script>
+    document.getElementById('downloadFileForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        // Récupérer les données du formulaire
+        const formData = new FormData();
+        formData.append('idUser', document.getElementById('email').value);
+        formData.append('path', document.getElementById('path').value);
+        formData.append('fileName', document.getElementById('name').value);
+
+        // Créer une instance URLSearchParams pour les paramètres d'URL
+        const params = new URLSearchParams();
+        formData.forEach((value, key) => {
+            params.append(key, value);
+        });
+
+        // Construire l'URL avec les paramètres ajoutés
+        const url = 'http://localhost:8080/user/func/download?' + params.toString();
+
+        // Effectuer la requête GET avec ces paramètres
+        fetch(url, {
+            method: 'GET',
+        })
+        .then(response => {
+            if (response.status === 200) {
+                return response.blob();  // Le fichier téléchargé sous forme de Blob
+            } else {
+                throw new Error("Erreur lors du téléchargement");
+            }
+        })
+        .then(fileBlob => {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(fileBlob);
+            link.download = document.getElementById('name').value;  // Le nom du fichier
+            link.click();  // Déclenche le téléchargement
+        })
+        .catch(error => console.error('Erreur lors du téléchargement :', error));
+    });
+</script>
+
+</body>
+</html>

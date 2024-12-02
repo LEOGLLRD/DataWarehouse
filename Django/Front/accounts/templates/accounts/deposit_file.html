@@ -1,0 +1,87 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Déposer un Fichier</title>
+    <link rel="stylesheet" href="{% static 'accounts/signin.css' %}">
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="navbar">
+        <span>Stockchain</span>
+        <div class="navbar-links">
+            <a href="{% url 'create_folder' %}">Créer un Dossier</a>
+            <a href="{% url 'deposit_file' %}">Déposer un Fichier</a>
+            <a href="{% url 'download_file' %}">Télécharger un Fichier</a>
+            <a href="{% url 'delete_file' %}">Supprimer un Fichier</a>
+            <a href="{% url 'delete_folder' %}">Supprimer un Dossier</a>
+            <a href="{% url 'home' %}">Accueil</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Déposer un Fichier</h2>
+        <form method="POST" id="depositFileForm" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Email -->
+            <div>
+                <label for="email">Email</label>
+                <input type="text" id="email" name="email" required>
+            </div>
+
+            <!-- Chemin -->
+            <div>
+                <label for="path">Chemin</label>
+                <input type="text" id="path" name="path" required>
+            </div>
+
+            <!-- Nom du fichier -->
+            <div>
+                <label for="name">Nom du Fichier</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+
+            <!-- Fichier -->
+            <div>
+                <label for="file">Fichier</label>
+                <input type="file" id="file" name="file" required>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit">Déposer</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('depositFileForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Collecte les données du formulaire
+            const formData = new FormData();
+            formData.append('idUser', document.getElementById('email').value);
+            formData.append('path', document.getElementById('path').value);
+            formData.append('name', document.getElementById('name').value);
+            formData.append('file', document.getElementById('file').files[0]); // Ajout du fichier
+
+            // Envoie une requête POST à l'API
+            fetch('http://localhost:8080/user/func/deposit', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert("Fichier déposé avec succès : " + data.message);
+                    // Rediriger vers la page d'accueil
+                    window.location.href = '/accounts/home/';
+                } else {
+                    alert("Erreur : " + JSON.stringify(data));
+                }
+            })
+            .catch(error => console.error('Erreur lors du dépôt du fichier :', error));
+        });
+    </script>
+</body>
+</html>

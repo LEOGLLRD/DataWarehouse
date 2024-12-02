@@ -1,0 +1,14 @@
+<li>
+    {{ folder.name }}
+    {% if folder.contains %}
+        <ul>
+            {% for item in folder.contains %}
+                {% if item.name %}
+                    {% include "file_tree.html" with folder=item %}
+                {% elif item.filename %}
+                    <li>{{ item.filename }}</li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+</li>

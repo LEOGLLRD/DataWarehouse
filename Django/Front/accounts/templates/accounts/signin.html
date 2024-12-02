@@ -1,0 +1,66 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Stockchain</title>
+    <link rel="stylesheet" href="{% static 'accounts/signin.css' %}">
+</head>
+<body>
+    <!-- Barre supérieure -->
+    <div class="navbar">
+        <span>Stockchain</span>
+    </div>
+
+    <!-- Conteneur principal -->
+    <div class="container">
+        <h2>Connexion</h2>
+        <form id="signinForm" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div>
+                <label for="email">Email :</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div>
+                <label for="password">Mot de passe :</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Se connecter</button>
+        </form>
+
+        <!-- Lien pour basculer vers la page d'inscription -->
+        <p class="switch-page">
+            <a href="/accounts/signup/">Créer un compte</a>
+        </p>
+
+        <p>{% for message in messages %} {{ message }} {% endfor %}</p>
+    </div>
+    <p>{% for message in messages %} {{ message }} {% endfor %}</p>
+<script>
+    document.getElementById('signinForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const formData = new FormData();
+    formData.append('email', document.getElementById('email').value);
+    formData.append('password', document.getElementById('password').value);
+
+    fetch('http://localhost:8080/user/auth/signin', {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            alert("Connexion réussie !");
+            // Rediriger vers la page d'accueil ou tableau de bord
+            window.location.href = '/accounts/home/';
+        } else {
+            alert("Erreur : " + JSON.stringify(data));
+        }
+    })
+    .catch(error => console.error('Erreur lors de la connexion :', error));
+});
+</script>
+
+</body>
+</html>

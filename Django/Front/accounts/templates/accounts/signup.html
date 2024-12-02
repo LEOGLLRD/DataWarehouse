@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - Stockchain</title>
+    <link rel="stylesheet" href="{% static 'accounts/signin.css' %}">
+</head>
+<body>
+    <!-- Barre supérieure -->
+    <div class="navbar">
+        <span>Stockchain</span>
+    </div>
+
+    <!-- Conteneur principal -->
+    <div class="container">
+        <h2>Inscription</h2>
+        <form id="signupForm" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div>
+                <label for="username">Nom d'utilisateur :</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div>
+                <label for="email">Email :</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div>
+                <label for="password">Mot de passe :</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">S'inscrire</button>
+        </form>
+
+        <!-- Lien pour basculer vers la page de connexion -->
+        <p class="switch-page">
+            <a href="/accounts/signin/">Déjà un compte ? Connectez-vous</a>
+        </p>
+
+        <p>{% for message in messages %} {{ message }} {% endfor %}</p>
+    </div>
+
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData();
+            formData.append('username', document.getElementById('username').value);
+            formData.append('email', document.getElementById('email').value);
+            formData.append('password', document.getElementById('password').value);
+
+            fetch('http://localhost:8080/user/auth/signup', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert("Inscription réussie : " + data.message);
+                    // Rediriger vers la page de connexion
+                    window.location.href = '/accounts/signin/';
+                } else {
+                    alert("Erreur : " + JSON.stringify(data));
+                }
+            })
+            .catch(error => console.error('Erreur lors de l’inscription :', error));
+        });
+    </script>
+</body>
+</html>

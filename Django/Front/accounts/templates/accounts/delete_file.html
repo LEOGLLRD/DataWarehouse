@@ -1,0 +1,71 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supprimer un Fichier</title>
+    <link rel="stylesheet" href="{% static 'accounts/signin.css' %}">
+</head>
+<body>
+    <div class="navbar">
+    <span>Stockchain</span>
+    <div class="navbar-links">
+        <a href="{% url 'create_folder' %}">Créer un Dossier</a>
+        <a href="{% url 'deposit_file' %}">Déposer un Fichier</a>
+        <a href="{% url 'download_file' %}">Télécharger un Fichier</a>
+        <a href="{% url 'delete_file' %}">Supprimer un Fichier</a>
+        <a href="{% url 'delete_folder' %}">Supprimer un Dossier</a>
+        <a href="{% url 'home' %}">Accueil</a>
+    </div>
+</div>
+
+
+    <div class="container">
+        <h2>Supprimer un Fichier</h2>
+        <form method="POST" id="deleteFileForm">
+            {% csrf_token %}
+            <div>
+                <label for="email">Email</label>
+                <input type="text" id="email" name="email" required>
+            </div>
+            <div>
+                <label for="path">Chemin</label>
+                <input type="text" id="path" name="path" required>
+            </div>
+            <div>
+                <label for="fileName">Nom du Fichier</label>
+                <input type="text" id="fileName" name="fileName" required>
+            </div>
+            <button type="submit">Supprimer</button>
+        </form>
+    </div>
+<script>
+    document.getElementById('deleteFileForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        // Collecte les données du formulaire
+        const formData = new FormData();
+        formData.append('idUser', document.getElementById('email').value);
+        formData.append('path', document.getElementById('path').value);
+        formData.append('fileName', document.getElementById('fileName').value);
+
+        // Envoie une requête POST à l'API
+        fetch('http://localhost:8080/user/func/deleteFile', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert("Fichier supprimé avec succès : " + data.message);
+                // Rediriger vers la page d'accueil
+                window.location.href = '/accounts/home/';
+            } else {
+                alert("Erreur : " + JSON.stringify(data));
+            }
+        })
+        .catch(error => console.error('Erreur lors de la création du dossier :', error));
+    });
+</script>
+</body>
+</html>
